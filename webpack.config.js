@@ -5,8 +5,10 @@ const HtmlWebpackPlugin = require("html-webpack-plugin");
 const webpack = require("webpack");
 
 module.exports = async (env, options) => {
+  const isProduction = options.mode === "production";
+
   const config = {
-    devtool: "source-map",
+    devtool: isProduction ? false : "source-map",
     target: "web",
     entry: {
       taskpane: "./src/taskpane/taskpane.ts",
@@ -67,7 +69,7 @@ module.exports = async (env, options) => {
     ],
     devServer: {
       headers: {
-        "Access-Control-Allow-Origin": "*"
+        "Access-Control-Allow-Origin": "https://localhost:3000"
       },
       port: process.env.npm_package_config_dev_server_port || 3000,
       server: {
