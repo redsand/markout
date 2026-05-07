@@ -149,4 +149,16 @@ describe("cleanser", function () {
             })
         })
     })
+
+    describe("security hardening", () => {
+        it("should remove dangerous container tags", () => {
+            expect(cleanse('<iframe src="https://example.com"></iframe><div>ok</div>')).to.be.eql("ok");
+        })
+
+        it("should strip event handlers and unsafe href protocols", () => {
+            const output = cleanse('<a href="javascript:alert(1)" onclick="alert(1)">click</a>');
+            expect(output).to.not.contain("javascript:");
+            expect(output).to.not.contain("onclick");
+        })
+    })
 })

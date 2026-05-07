@@ -42,7 +42,10 @@
     "validate": "office-toolbox validate -m manifest.xml",
     "watch": "webpack --mode development --watch",
     "test": "jest",
-    "test:watch": "jest --watchAll"
+    "test:watch": "jest --watchAll",
+    "audit:prod": "npm audit --omit=dev --audit-level=high",
+    "audit:all": "npm audit --audit-level=high",
+    "security:check": "npm run audit:prod && npm run test -- --runInBand"
   },
   "dependencies": {
     "@types/highlight.js": "^10.1.0",
