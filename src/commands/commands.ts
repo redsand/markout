@@ -1,21 +1,11 @@
-import { ensureRendered, renderItem } from "../lib/item";
+import { ensureRendered, getCustomProperties, getRenderState, renderItem } from "../lib/item";
 import { getAutoRender } from "../lib/config";
-
-/*
- * Copyright (c) Microsoft Corporation. All rights reserved. Licensed under the MIT license.
- * See LICENSE in the project root for license information.
- */
-
 
 Office.onReady(info => {
   // If needed, Office.js is ready to be called
 });
 
-/**
- * Shows a notification when the add-in command is executed.
- * @param event 
- */
-async function render(event: Office.AddinCommands.Event) {
+export async function render(event: Office.AddinCommands.Event) {
   try {
     await renderItem();
     event.completed({ allowEvent: true });
@@ -32,13 +22,29 @@ async function render(event: Office.AddinCommands.Event) {
   }
 }
 
-async function onSend(event: Office.AddinCommands.Event) {
+export async function onSend(event: Office.AddinCommands.Event) {
   if (!getAutoRender()) {
     event.completed({ allowEvent: true });
     return;
   }
 
   try {
+    const customProperties = await getCustomProperties();
+    const isAlreadyRendered = !!getRenderState(customProperties);
+
+    if (!isAlreadyRendered) {
+      const message: Office.NotificationMessageDetails = {
+        type: Office.MailboxEnums.ItemNotificationMessageType.ErrorMessage,
+        message: "For safety, click Render and review the output before sending.",
+        icon: "Icon.80x80",
+        persistent: true
+      }
+
+      Office.context.mailbox.item.notificationMessages.replaceAsync("markout.render.review", message);
+      event.completed({ allowEvent: false });
+      return;
+    }
+
     await ensureRendered();
     event.completed({ allowEvent: true });
   } catch (err) {
@@ -63,6 +69,5 @@ function getGlobal() {
 
 const g = getGlobal() as any;
 
-// the add-in command functions need to be available in global scope
 g.render = render;
 g.onSend = onSend;
